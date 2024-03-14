@@ -147,8 +147,9 @@ perform_x_fold <- function(combined_file_path,control_minor,control_major){
 
   data$x_fold_minor <- data$x_fold_minor[[1]]
   data$x_fold_major <- data$x_fold_major[[1]]
-  # After correcting the structure, proceed to write the data frame to an Excel file
-  write_xlsx(data,combined_file_path)
+  # After correcting the structure,
+  # proceed to write the data frame to an Excel file
+  write_xlsx(data, combined_file_path)
 }
 # ------------------------------------------------------------------------------
 # Define a function that does the strict control - WIP
