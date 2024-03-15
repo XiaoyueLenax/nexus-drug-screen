@@ -1,82 +1,60 @@
-install.packages("readxl")
 library(readxl)
-# Read the first column of each specified Excel file
-major_2 <- read_excel("filtered/filtered_data_major_2.xlsx")
-major_2[,6]
-major_4 <- read_excel("filtered/filtered_data_major_4.xlsx", range = "A1:A100")[[1]]
-major_6 <- read_excel("filtered/filtered_data_major_6.xlsx", range = "A1:A100")[[1]]
 
-major_3 <- read_excel("filtered/filtered_data_major_3.xlsx", range = "A1:A100")[[1]]
-major_5 <- read_excel("filtered/filtered_data_major_5.xlsx", range = "A1:A100")[[1]]
-major_7 <- read_excel("filtered/filtered_data_major_7.xlsx", range = "A1:A100")[[1]]
+# Function to read the first column of Excel files within specified ranges
+read_first_col <- function(file_path, range = NULL) {
+  if (is.null(range)) {
+    return(read_excel(file_path)[, 1])
+  } else {
+    return(read_excel(file_path, range = range)[[1]])
+  }
+}
 
+# Function to find common strings
+find_common_strings <- function(data_list) {
+  common_3_times <- Reduce(intersect, data_list)
+  pairwise_intersects <- unique(unlist(lapply(1:length(data_list), function(i) {
+    unlist(lapply((i+1):length(data_list), function(j) {
+      intersect(data_list[[i]], data_list[[j]])
+    }))
+  })))
+  common_2_times <- pairwise_intersects[!pairwise_intersects %in% common_3_times]
+  list(common_3_times = common_3_times, common_2_times = common_2_times)
+}
 
-# Combine and find common strings 3 times and 2 times
-common_3_times_major <- Reduce(intersect, list(major_2, major_4, major_6))
-common_2_times_major <- unique(c(intersect(major_2, major_4), 
-                                 intersect(major_2, major_6), 
-                                 intersect(major_4, major_6)))
-common_2_times_major <- common_2_times_major[!common_2_times_major %in% common_3_times_major]
+# Read data and find common strings for both major and minor
+process_data <- function(prefix, indices) {
+  data_list <- lapply(indices, function(i) {
+    file_path <- paste0("filtered/filtered_data_", prefix, "_", i, ".xlsx")
+    if (i == 2 && prefix == "major") {
+      read_first_col(file_path)  # major_2 does not specify a range
+    } else {
+      read_first_col(file_path, range = "A1:A100")
+    }
+  })
+  
+  find_common_strings(data_list)
+}
 
-# Repeat the process for files 3, 5, 7
-common_3_times_minor <- Reduce(intersect, list(major_3, major_5, major_7))
-common_2_times_minor <- unique(c(intersect(major_3, major_5), 
-                                 intersect(major_3, major_7), 
-                                 intersect(major_5, major_7)))
-common_2_times_minor <- common_2_times_minor[!common_2_times_minor %in% common_3_times_minor]
+# Major data
+major_indices <- 2:7
+major_results <- process_data("major", major_indices)
 
-# Print results
-print("Strings matched 3 times among files 2, 4, 6:")
-print(common_3_times_major)
+# Minor data
+minor_indices <- c(2, 4, 6, 3, 5, 7)  # Assuming you want to process these indices for minor
+minor_results <- process_data("minor", minor_indices)
 
-print("Strings matched 2 times among files 2, 4, 6:")
-print(common_2_times_major)
+# Printing results
+print_results <- function(results, prefix, indices) {
+  cat("Strings matched 3 times among", prefix, "files", paste(indices, collapse=", "), ":\n")
+  print(results$common_3_times)
+  
+  cat("Strings matched 2 times among", prefix, "files", paste(indices, collapse=", "), ":\n")
+  print(results$common_2_times)
+}
 
-# Print results for files 3, 5, 7
-print("Strings matched 3 times among files 3, 5, 7:")
-print(common_3_times_minor)
-
-print("Strings matched 2 times among files 3, 5, 7:")
-print(common_2_times_minor)
-
-# for minors
-# Read the first column of each specified Excel file for the minor data
-minor_2 <- read_excel("filtered/filtered_data_minor_2.xlsx", range = "A1:A100")[[1]]
-minor_4 <- read_excel("filtered/filtered_data_minor_4.xlsx", range = "A1:A100")[[1]]
-minor_6 <- read_excel("filtered/filtered_data_minor_6.xlsx", range = "A1:A100")[[1]]
-
-minor_3 <- read_excel("filtered/filtered_data_minor_3.xlsx", range = "A1:A100")[[1]]
-minor_5 <- read_excel("filtered/filtered_data_minor_5.xlsx", range = "A1:A100")[[1]]
-minor_7 <- read_excel("filtered/filtered_data_minor_7.xlsx", range = "A1:A100")[[1]]
-
-# Combine and find common strings 3 times among minor files 2, 4, 6 and 2 times
-common_3_times_minor <- Reduce(intersect, list(minor_2, minor_4, minor_6))
-common_2_times_minor <- unique(c(intersect(minor_2, minor_4), 
-                                 intersect(minor_2, minor_6), 
-                                 intersect(minor_4, minor_6)))
-common_2_times_minor <- common_2_times_minor[!common_2_times_minor %in% common_3_times_minor]
-
-
-
-# Repeat the process for minor files 3, 5, 7
-common_3_times_minor_357 <- Reduce(intersect, list(minor_3, minor_5, minor_7))
-common_2_times_minor_357 <- unique(c(intersect(minor_3, minor_5), 
-                                     intersect(minor_3, minor_7), 
-                                     intersect(minor_5, minor_7)))
-common_2_times_minor_357 <- common_2_times_minor_357[!common_2_times_minor_357 %in% common_3_times_minor_357]
-
-
-# Print results for minor data
-print("Strings matched 3 times among minor files 2, 4, 6:")
-print(common_3_times_minor)
-
-print("Strings matched 2 times among minor files 2, 4, 6:")
-print(common_2_times_minor)
-
-# Print results for minor files 3, 5, 7
-print("Strings matched 3 times among minor files 3, 5, 7:")
-print(common_3_times_minor_357)
-
-print("Strings matched 2 times among minor files 3, 5, 7:")
-print(common_2_times_minor_357)
+# Print results for major and minor data
+print_results(major_results, "major", major_indices)
+# Assuming you want to split the minor results printing
+print_results(minor_results, "minor", minor_indices[1:3])
+print_results(minor_results, "minor", minor_indices[4:6])
 
