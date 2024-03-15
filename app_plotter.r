@@ -1,5 +1,6 @@
 library(shiny)
 library(ggplot2)
+#install.packages("readxl")
 library(readxl)
 library(dplyr)
 
@@ -33,7 +34,7 @@ ui <- fluidPage(
 server <- function(input, output) {
   output$volcanoPlot <- renderPlot({
     # Construct the file name based on the selected sample
-    file_name <- paste0("combined_data_", input$sample_selection, ".xlsx")
+    file_name <- paste0("nexus/nexus-drug-screen/combined_data_", input$sample_selection, ".xlsx")
     
     # Read the selected file
     df <- read_excel(file_name, sheet = 1)
@@ -59,10 +60,10 @@ server <- function(input, output) {
            x = "x_fold_minor",
            y = "x_fold_major",
            color = "Condition") +
-      geom_hline(yintercept = input$minor_threshold_y, linetype = "dashed", color = "green") +
-      geom_vline(xintercept = input$minor_threshold_x, linetype = "dashed", color = "green") +
-      geom_hline(yintercept = input$major_threshold_y, linetype = "dashed", color = "purple") +
-      geom_vline(xintercept = input$major_threshold_x, linetype = "dashed", color = "purple") +
+      geom_hline(yintercept = input$minor_threshold_y, linetype = "dashed", color = "pink") +
+      geom_vline(xintercept = input$minor_threshold_x, linetype = "dashed", color = "pink") +
+      geom_hline(yintercept = input$major_threshold_y, linetype = "dashed", color = "blue") +
+      geom_vline(xintercept = input$major_threshold_x, linetype = "dashed", color = "bluee") +
       theme(legend.position = "right")
       
     # Conditionally add gene names
@@ -76,3 +77,4 @@ server <- function(input, output) {
 
 shinyApp(ui = ui, server = server)
 
+read_excel("nexus/nexus-drug-screen/combined_data_2.xlsx",sheet=1)
