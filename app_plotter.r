@@ -4,7 +4,7 @@ library(readxl)
 library(dplyr)
 
 ui <- fluidPage(
-  titlePanel("Dynamic Volcano Plot"),
+  titlePanel("Dynamic Threshold Checker"),
   sidebarLayout(
     sidebarPanel(
       # Dropdown menu for selecting the sample
